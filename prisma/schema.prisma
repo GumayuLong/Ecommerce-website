@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Banners {
+  id  Int     @id @default(autoincrement())
+  img String? @db.VarChar(2000)
+}
+
+model Categories {
+  id       Int        @id @default(autoincrement())
+  type     String?    @db.VarChar(1000)
+  Products Products[]
+}
+
+model Comments {
+  id         Int       @id @default(autoincrement())
+  user_id    Int?
+  product_id Int?
+  title      String?   @db.VarChar(1000)
+  rate       Int?
+  content    String?   @db.VarChar(5000)
+  Users      Users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Comments_ibfk_1")
+  Products   Products? @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Comments_ibfk_2")
+
+  @@index([product_id], map: "product_id")
+  @@index([user_id], map: "user_id")
+}
+
+model Likes {
+  id         Int       @id @default(autoincrement())
+  user_id    Int?
+  product_id Int?
+  favorite   Boolean?
+  Users      Users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Likes_ibfk_1")
+  Products   Products? @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Likes_ibfk_2")
+
+  @@index([product_id], map: "product_id")
+  @@index([user_id], map: "user_id")
+}
+
+model Orders {
+  id            Int       @id @default(autoincrement())
+  user_id       Int?
+  product_id    Int?
+  quantities    Int?
+  address       String?   @db.VarChar(1000)
+  purchase_date DateTime? @db.Date
+  paid          Int?
+  Users         Users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_1")
+  Products      Products? @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_2")
+
+  @@index([product_id], map: "product_id")
+  @@index([user_id], map: "user_id")
+}
+
+model Products {
+  id           Int         @id @default(autoincrement())
+  type_id      Int?
+  product_name String?     @db.VarChar(1000)
+  price        Int?
+  img          String?     @db.VarChar(2000)
+  capacity     String?     @db.VarChar(500)
+  front_camera String?     @db.VarChar(100)
+  back_camera  String?     @db.VarChar(100)
+  display      String?     @db.VarChar(100)
+  feature      String?     @db.VarChar(5000)
+  chipset      String?     @db.VarChar(1000)
+  battery      Int?
+  color        String?     @db.VarChar(200)
+  description  String?     @db.VarChar(5000)
+  Comments     Comments[]
+  Likes        Likes[]
+  Orders       Orders[]
+  Categories   Categories? @relation(fields: [type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Products_ibfk_1")
+
+  @@index([type_id], map: "type_id")
+}
+
+model Users {
+  id        Int        @id @default(autoincrement())
+  user_name String?    @db.VarChar(100)
+  pass_word String?    @db.VarChar(200)
+  email     String?    @db.VarChar(200)
+  gender    Boolean?
+  birth_day DateTime?  @db.Date
+  role      String?    @db.VarChar(10)
+  avatar    String?    @db.VarChar(2000)
+  Comments  Comments[]
+  Likes     Likes[]
+  Orders    Orders[]
+}
